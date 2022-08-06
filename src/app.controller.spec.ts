@@ -14,8 +14,8 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
+  describe('index', () => {
+    it('should return "Email service"', () => {
       expect(appController.index()).toBe('Email Service');
     });
   });
