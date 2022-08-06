@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import { EmailServiceInterface } from '@/email/email.interface';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class SendGridService implements EmailServiceInterface {
   send() {
     return 'SendGrid Service';
