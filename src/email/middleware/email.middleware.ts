@@ -10,6 +10,7 @@ import { EMAIL_SERVICE_SENDGRID } from '@/email/service/email-service.constants'
 import { SendGridService } from '@/email/service/sendgrid.service';
 import { MailjetService } from '@/email/service/mailjet.service';
 import { EmailServiceInterface } from '@/email/email.interface';
+import { HttpClient } from '@/client/HttpClient';
 
 interface ExpressRequest extends Request {
   emailService?: EmailServiceInterface;
@@ -17,7 +18,10 @@ interface ExpressRequest extends Request {
 
 @Injectable()
 export class EmailServiceMiddleware implements NestMiddleware {
-  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly httpClient: HttpClient,
+  ) {}
 
   async use(req: ExpressRequest, res: Response, next: NextFunction) {
     let service = EMAIL_SERVICE_SENDGRID;
@@ -28,7 +32,7 @@ export class EmailServiceMiddleware implements NestMiddleware {
 
     req.emailService =
       service === EMAIL_SERVICE_SENDGRID
-        ? new SendGridService()
+        ? new SendGridService(this.httpClient)
         : new MailjetService();
 
     next();

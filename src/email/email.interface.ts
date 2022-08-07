@@ -1,3 +1,5 @@
+import { SendEmailDto } from '@/email/dto/send-email.dto';
+
 export interface EmailServiceInterface {
-  send(): any;
+  send(sendMailDto: SendEmailDto): any;
 }

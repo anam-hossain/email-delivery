@@ -37,7 +37,7 @@ export class EmailController {
 
     value = await this.cacheManager.get('email-service');
     console.log('Get the latest value from cache:' + value);
-    const msg = emailService.send();
+    const msg = await emailService.send(sendEmailDto);
     return res.status(200).json(msg);
   }
 }
