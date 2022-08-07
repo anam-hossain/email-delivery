@@ -12,13 +12,10 @@ export class SendGridService implements EmailServiceInterface {
     const request = this.prepareRequest(sendMailDto);
 
     console.log(JSON.stringify(request));
-    const result = await this.httClient.sendRequest(request);
-    console.log(result);
-
-    return 'SendGrid Service';
+    return await this.httClient.sendRequest(request);
   }
 
-  prepareRequest(sendMailDto: SendEmailDto): AxiosRequestConfig {
+  private prepareRequest(sendMailDto: SendEmailDto): AxiosRequestConfig {
     return {
       data: this.prepareData(sendMailDto),
       method: 'POST',
