@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { EmailController } from './email.controller';
 import { HttpModule } from '@nestjs/axios';
 import { HttpClient } from '@/client/HttpClient';
+import { EmailServiceFactory } from '@/email/factory/email-service.factory';
+import { EmailService } from '@/email/email.service';
 
 @Module({
   imports: [
@@ -9,7 +11,7 @@ import { HttpClient } from '@/client/HttpClient';
       timeout: 5000,
     }),
   ],
-  providers: [HttpClient],
+  providers: [HttpClient, EmailServiceFactory, EmailService],
   controllers: [EmailController],
   exports: [HttpClient],
 })
