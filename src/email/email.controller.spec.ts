@@ -34,7 +34,7 @@ describe('EmailController', () => {
 
   it('should send the email', async () => {
     const emailServiceSpy = jest.spyOn(emailService, 'send');
-    const res = await controller.send(new SendEmailDto(), mockResponse);
+    await controller.send(new SendEmailDto(), mockResponse);
 
     expect(emailServiceSpy).toBeCalledTimes(1);
   });
