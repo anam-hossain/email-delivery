@@ -18,17 +18,19 @@ export class EmailServiceFactory {
 
   async create(): Promise<EmailServiceInterface> {
     let service = EMAIL_SERVICE_SENDGRID;
+    const sendGridService = new SendGridService(this.httpClient);
+    const mailJetService = new MailjetService(this.httpClient);
 
     try {
       service = await this.cacheManager.get('email-service');
     } catch (error) {}
 
     if (service === EMAIL_SERVICE_SENDGRID) {
-      this.emailServiceApi = new SendGridService(this.httpClient);
-      this.fallBackEmailServiceApi = new MailjetService(this.httpClient);
+      this.emailServiceApi = sendGridService;
+      this.fallBackEmailServiceApi = mailJetService;
     } else {
-      this.emailServiceApi = new MailjetService(this.httpClient);
-      this.fallBackEmailServiceApi = new SendGridService(this.httpClient);
+      this.emailServiceApi = mailJetService;
+      this.fallBackEmailServiceApi = sendGridService;
     }
 
     return this.emailServiceApi;
