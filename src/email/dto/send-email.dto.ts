@@ -1,4 +1,9 @@
-import { IsNotEmpty, ValidateNested, IsString, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  ValidateNested,
+  IsString,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { PersonDto } from '@/email/dto/PersonDto';
 
