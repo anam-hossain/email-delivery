@@ -21,4 +21,8 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Email Service');
   });
+
+  afterEach(async () => {
+    await app.close();
+  });
 });

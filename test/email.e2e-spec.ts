@@ -15,6 +15,7 @@ const mockHttpService = {
 describe('EmailController (e2e)', () => {
   let app: INestApplication;
   let cacheManager;
+  let server;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -27,6 +28,7 @@ describe('EmailController (e2e)', () => {
     cacheManager = moduleFixture.get<Cache>(CACHE_MANAGER);
     app = moduleFixture.createNestApplication();
     await app.init();
+    server = app.getHttpServer();
   });
 
   it('/email/send (POST) - should send email and return 200 response', async () => {
@@ -39,7 +41,7 @@ describe('EmailController (e2e)', () => {
       });
     });
 
-    return request(app.getHttpServer())
+    return request(server)
       .post('/email/send')
       .send(sendEmailDtoFixture)
       .expect(200);
@@ -62,13 +64,13 @@ describe('EmailController (e2e)', () => {
         });
       });
 
-    return request(app.getHttpServer())
+    return request(server)
       .post('/email/send')
       .send(sendEmailDtoFixture)
       .expect(200);
   });
 
-  it('/email/send (POST) - 400 response - validation errors', () => {
+  it('/email/send (POST) - 400 response - validation errors', async () => {
     const payload = {
       subject: 'Hello',
       content: 'Email service',
@@ -77,7 +79,7 @@ describe('EmailController (e2e)', () => {
       },
     };
 
-    return request(app.getHttpServer())
+    return request(server)
       .post('/email/send')
       .send(payload)
       .expect(400)
@@ -88,7 +90,8 @@ describe('EmailController (e2e)', () => {
       });
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await app.close();
+    server.close();
   });
 });

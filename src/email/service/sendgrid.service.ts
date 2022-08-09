@@ -8,6 +8,20 @@ import { HttpClient } from '@/client/HttpClient';
 export class SendGridService implements EmailServiceInterface {
   constructor(private readonly httClient: HttpClient) {}
 
+  async healthCheck(): Promise<boolean> {
+    const request = {
+      method: 'GET',
+      url: process.env.SENDGRID_HEALTHCHECK_ENDPOINT,
+    };
+
+    try {
+      const response = await this.httClient.sendRequest(request);
+      return this.isServiceOperational(response.data);
+    } catch (error) {
+      return false;
+    }
+  }
+
   async send(sendMailDto: SendEmailDto) {
     const request = this.prepareRequest(sendMailDto);
 
@@ -60,5 +74,22 @@ export class SendGridService implements EmailServiceInterface {
     }
 
     return [personalizations];
+  }
+
+  private isServiceOperational(response): boolean {
+    if (!Array.isArray(response.components) && !response.components.length) {
+      return false;
+    }
+
+    for (let i = 0; i < response.components.length; i++) {
+      if (
+        response.components[i].id === '06b486vkpf0h' &&
+        response.components[i].status === 'operational'
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

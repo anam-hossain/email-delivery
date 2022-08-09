@@ -8,6 +8,20 @@ import { AxiosRequestConfig } from 'axios';
 export class MailjetService implements EmailServiceInterface {
   constructor(private readonly httClient: HttpClient) {}
 
+  async healthCheck(): Promise<boolean> {
+    const request = {
+      method: 'GET',
+      url: process.env.MAILJET_HEALTHCHECK_ENDPOINT,
+    };
+
+    try {
+      const response = await this.httClient.sendRequest(request);
+      return this.isServiceOperational(response.data);
+    } catch (error) {
+      return false;
+    }
+  }
+
   async send(sendMailDto: SendEmailDto) {
     const request = this.prepareRequest(sendMailDto);
 
@@ -49,5 +63,37 @@ export class MailjetService implements EmailServiceInterface {
     return {
       Messages: [messages],
     };
+  }
+
+  private isServiceOperational(response): boolean {
+    if (!Array.isArray(response.components) && !response.components.length) {
+      return false;
+    }
+
+    let count = 0;
+
+    for (let i = 0; i < response.components.length; i++) {
+      // Send API
+      if (
+        response.components[i].id === 'tkxw1px3l9jp' &&
+        response.components[i].status === 'operational'
+      ) {
+        count++;
+      }
+
+      // REST API
+      if (
+        response.components[i].id === '0zt14wp9dggy' &&
+        response.components[i].status === 'operational'
+      ) {
+        count++;
+      }
+
+      if (count > 1) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

@@ -5,6 +5,7 @@ import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { EmailModule } from '@/email/email.module';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const inMemoryCacheConfig = {
   isGlobal: true,
@@ -19,8 +20,9 @@ const redisCacheConfig = {
 
 @Module({
   imports: [
-    EmailModule,
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
+    EmailModule,
     process.env.NODE_ENV === 'test'
       ? CacheModule.register(inMemoryCacheConfig)
       : CacheModule.register<ClientOpts>(redisCacheConfig),
