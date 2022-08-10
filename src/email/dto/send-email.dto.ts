@@ -3,6 +3,7 @@ import {
   ValidateNested,
   IsString,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PersonDto } from '@/email/dto/PersonDto';
@@ -36,4 +37,9 @@ export class SendEmailDto {
   @IsNotEmpty()
   @IsString()
   subject: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsBoolean()
+  queue: boolean;
 }

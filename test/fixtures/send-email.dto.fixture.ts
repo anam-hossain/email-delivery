@@ -21,4 +21,5 @@ export const sendEmailDtoFixture: any = {
     name: 'foo bar',
   },
   content: 'Email Service test',
+  queue: false,
 };

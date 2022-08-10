@@ -7,6 +7,7 @@ export class PersonDto {
   readonly email: string;
 
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
   readonly name: string;
 }

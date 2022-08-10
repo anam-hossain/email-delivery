@@ -44,6 +44,15 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+## Constraints
+
+### Validation
+Due to time constraint, api does not verify the senders are unique. 
+For example, `to`, `cc` and `bcc` can have duplicate emails.
+
+### Logging
+
+Logging functionality not being implemented. The app utilising `console.log()` instead.
 
 ## Test
 

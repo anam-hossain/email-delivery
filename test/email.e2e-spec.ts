@@ -7,9 +7,15 @@ import { AppModule } from '@/app.module';
 import { sendEmailDtoFixture } from '@test/fixtures/send-email.dto.fixture';
 import { Cache } from 'cache-manager';
 import { EMAIL_SERVICE_SENDGRID } from '@/email/service/email-service.constants';
+import { BullModule, getQueueToken } from '@nestjs/bull';
 
 const mockHttpService = {
   request: jest.fn(),
+};
+
+const queueMock = {
+  add: jest.fn(),
+  process: jest.fn(),
 };
 
 describe('EmailController (e2e)', () => {
@@ -19,10 +25,17 @@ describe('EmailController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        AppModule,
+        BullModule.registerQueue({
+          name: 'email',
+        }),
+      ],
     })
       .overrideProvider(HttpService)
       .useValue(mockHttpService)
+      .overrideProvider(getQueueToken('email'))
+      .useValue(queueMock)
       .compile();
 
     cacheManager = moduleFixture.get<Cache>(CACHE_MANAGER);
@@ -88,6 +101,13 @@ describe('EmailController (e2e)', () => {
         message: ['to should not be empty'],
         error: 'Bad Request',
       });
+  });
+
+  it('/email/send (POST) - should queue email and return 202 response', async () => {
+    const payload = sendEmailDtoFixture;
+    delete payload.queue;
+
+    return request(server).post('/email/send').send(payload).expect(202);
   });
 
   afterEach(async () => {

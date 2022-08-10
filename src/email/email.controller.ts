@@ -11,6 +11,7 @@ import { SendEmailDto } from '@/email/dto/send-email.dto';
 import { EmailService } from '@/email/email.service';
 import { SendGridService } from '@/email/service/sendgrid.service';
 import { MailjetService } from '@/email/service/mailjet.service';
+import { EmailProducer } from '@/email/queue/email.producer';
 
 @Controller('email')
 export class EmailController {
@@ -18,6 +19,7 @@ export class EmailController {
     private readonly emailService: EmailService,
     private readonly sendGridService: SendGridService,
     private readonly mailjetService: MailjetService,
+    private readonly emailProducer: EmailProducer,
   ) {}
 
   @Post('/send')
@@ -26,11 +28,20 @@ export class EmailController {
     @Body() sendEmailDto: SendEmailDto,
     @Response() res,
   ): Promise<Response> {
-    const response = await this.emailService.send(sendEmailDto);
+    if (sendEmailDto.queue !== undefined && !sendEmailDto.queue) {
+      const response = await this.emailService.send(sendEmailDto);
 
-    return res.status(200).json({
-      msg: 'Email sent successfully',
-      providerResponse: response?.data,
+      return res.status(200).json({
+        msg: 'Email sent successfully',
+        providerResponse: response?.data,
+      });
+    }
+
+    // By default, email will be queued
+    await this.emailProducer.push(sendEmailDto);
+
+    return res.status(202).json({
+      msg: 'Email queued successfully',
     });
   }
 
