@@ -9,6 +9,10 @@ A simple gateway to deliver emails.
 - A fail-safe mechanism is in place to deliver emails using an alternate provider if something goes wrong
 - Unit and e2e tested
 
+## Email Providers
+- [SendGrid](https://docs.sendgrid.com/api-reference/mail-send/mail-send)
+- [MailJet](https://dev.mailjet.com/email/guides/send-api-v31/)
+
 ## Requirements
 
 - [NEST CLI](https://docs.nestjs.com/cli/overview) (v9.0.0 - Optional - Required for dev environment)
