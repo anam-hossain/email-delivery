@@ -1,38 +1,53 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Email Delivery Gateway
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A simple gateway to deliver emails.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
+- Multiple email providers to deliver emails in confidence. if one fails, email will be delivered using alternate provider.
+- By default, email will be `queued` to deliver in background for better user experience
+- A `cron` is running to monitor the email providers health for optimum performance
+- A fail-safe mechanism is in place to deliver emails using an alternate provider if something goes wrong
+- Unit and e2e tested
 
-## Description
+## Requirements
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [NEST CLI](https://docs.nestjs.com/cli/overview) (v9.0.0 - Optional - Required for dev environment)
+- Node v16+ (v16.14.2)
+- NPM 8+ (v8.5.0)
+- TypeScript (v4.7.4 - optional)
+- Redis (For queue and cache). A docker-compose file is provided to run it.
+- Docker and Docker Compose
 
-## Installation
+## Dev environment setup
 
+1. Install `nest cli`
 ```bash
-$ npm install
+npm install -g @nestjs/cli
+```
+2. Create `.env` file in the repo directory
+```bash
+cp .env.dist .env
 ```
 
-## Running the app
+For sending email locally, please update the following `.env`.
+
+```bash
+SENDGRID_API_KEY=
+MAILJET_API_KEY=
+```
+
+3. Install dependencies
+```bash
+npm install
+```
+
+4. Bring up the `Redis` cluster
+
+```bash
+docker-compose up -d
+```
+
+5. Finally, run the dev server
 
 ```bash
 # development
@@ -44,11 +59,86 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+
+## Api reference
+
+### Send email api
+
+By default, all emails will be queued and process in the background.
+
+```bash
+curl --location --request POST 'http://localhost:3000/email/send' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "to": [
+    {
+      "email": "foo@bar.com",
+      "name": "Foo"
+    },
+    {
+      "email": "foobar@bar.com",
+      "name": "Foo bar"
+    }
+  ],
+  "cc": [
+    {
+      "email": "bar@baz.com",
+      "name": "Bar"
+    }
+  ],
+  "bcc": [
+    {
+      "email": "baz@foo.com",
+      "name": "Baz"
+    }
+  ],
+  "subject": "Email service",
+  "from": {
+    "email": "foo@bar.com",
+    "name": "Foo"
+  },
+  "content": "Testing Email Service"
+}'
+```
+
+### Send email directly
+To avoid queueing the email, pass `queue=false` in the request body.
+
+```bash
+curl --location --request POST 'http://localhost:3000/email/send' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "to": [
+    {
+      "email": "foo@bar.com"
+    }
+  ],
+  "subject": "Email service",
+  "from": {
+    "email": "foo@bar.com"
+  },
+  "content": "Testing Email Service",
+  "queue": false
+}'
+```
+
+### Health check
+
+```bash
+http://localhost:3000/email/healthcheck
+```
+
+### Postman collection
+
+[https://www.getpostman.com/collections/8e8ff67fa843ba43cdac](https://www.getpostman.com/collections/8e8ff67fa843ba43cdac)
+
 ## Constraints
 
 ### Validation
-Due to time constraint, api does not verify the senders are unique. 
+
+- Due to time constraint, api does not verify the senders are unique.
 For example, `to`, `cc` and `bcc` can have duplicate emails.
+- Total number of recipients (to, cc, bcc) are not being limited. SendGrid allows up to 1000 whereas Mailjet allows only 50.
 
 ### Logging
 
@@ -62,21 +152,10 @@ $ npm run test
 
 # e2e tests
 $ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
+## Demo
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+```
+POST https://devtask.xyz/email/send
+GET https://devtask.xyz/email/healthcheck
+```

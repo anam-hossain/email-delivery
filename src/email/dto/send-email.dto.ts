@@ -6,7 +6,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PersonDto } from '@/email/dto/PersonDto';
+import { PersonDto } from '@/email/dto/person.dto';
 
 export class SendEmailDto {
   @IsNotEmpty()
