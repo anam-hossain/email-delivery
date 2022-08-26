@@ -140,7 +140,7 @@ http://localhost:3000/email/healthcheck
 
 ### Validation
 
-- Due to time constraint, api does not verify the senders are unique.
+- Api does not verify the senders are unique.
 For example, `to`, `cc` and `bcc` can have duplicate emails.
 - Total number of recipients (to, cc, bcc) are not being limited. SendGrid allows up to 1000 whereas Mailjet allows only 50.
 
@@ -156,10 +156,4 @@ $ npm run test
 
 # e2e tests
 $ npm run test:e2e
-```
-## Demo
-
-```
-POST https://devtask.xyz/email/send
-GET https://devtask.xyz/email/healthcheck
 ```
